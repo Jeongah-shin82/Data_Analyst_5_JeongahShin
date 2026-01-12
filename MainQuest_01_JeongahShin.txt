@@ -1,0 +1,110 @@
+#MainQuest01_은행계좌 만들기
+'''
+Q1. Account클래스
+    은행에 가서 계좌를 개설하면 은행이름, 예금주, 계좌번호, 잔액이 설정됩니다.
+    Account 클래스를 생성한 후 생성자(hint: 매직메서드)를 구현해보세요. 
+    생성자에서는 예금주와 초기 잔액만 입력 받습니다.
+    계좌개설 매서드를 만들고 은행이름은 SC은행으로, 계좌번호는 3자리-2자리-6자리 형태로 랜덤하게 생성되도록 합니다.
+    (SC은행, 예금주명, 계좌번호 111-11-111111, 잔액)
+Q2. 클래스 변수
+    클래스 변수를 사용해서 Account클래스로부터 생성된 계좌 객체의 개수를 저장하세요.
+Q3. 클래스 변수 출력
+    Account 클래스로부터 생성된 계좌의 개수를 출력하는 get_account_num() 매서드를 추가하세요.
+Q4. 입금 메서드
+    Account 클래스에 입금을 위한 deposit 매서드를 추가하세요. 입금은 최소 1원 이상만 가능합니다.
+Q5. 출금 메서드
+    Account 클래스에 출금을 위한 withdraw 매서드를 추가하세요. 출금은 계좌의 잔고 이상으로 출금할 수 없습니다.
+Q6. 정보 출력 메서드
+    Account 인스턴스에 저장된 정보를 출력하는 display_info() 매서드를 추가하세요. 잔고는 세자리마다 쉼표를 출력하세요.
+    (은행이름: SC은행, 예금주: 파이썬, 계좌번호 : 111-11-111111, 잔고 : 10,000원)
+Q7. 이자 지급하기
+    입금 횟수가 5회가 될 때 잔고를 기준으로 1%의 이자가 잔고에 추가되도록 코드를 변경해보세요.
+Q8. 여러 객체 생성
+    Account 클래스롤부터 3개 이상 인스턴스를 생성하고 생성된 인스턴스를 리스트에 저장해보세요.
+Q9. 특정 고객의 정보 출력
+    객체 순회 반복문을 통해 리스트에 있는 객체를 순회하면서 잔고가 100만원 이상인 고객의 정보만 출력하세요.
+10. 입금과 출금 내역 기록
+    입금과 출금 내역이 기록되도록 코드를 업데이트 하세요.
+    (입금 내역과 출금 내역을 출력하는 deposit history와 withdraw history 매서드를 추가하세요.)  
+'''
+
+import random
+
+class Account(): #Q1.Account 클래스 생성_계좌구성 요소반영
+
+    total_count = 0 #Q2. 계좌생성개수 (클래스 변수)_클래스 변수를 사용해서 Account클래스로부터 생성된 계좌 객체의 개수를 저장하세요.
+
+    def __init__(self, depositor, balance):
+        self.bank = "SC은행"
+        self.depositor = depositor
+        self.balance = balance
+        self.account_no = f"{random.randint(100, 999)}-{random.randint(10, 99)}-{random.randint(100000, 999999)}"
+        self.deposit_history = []
+        self.withdraw_history = []
+        self.deposit_count = 0
+        
+        Account.total_count += 1 # 계좌 생성시 생성된 계좌 객체수 1개씩 증가
+
+    def get_account_num(self):         #Q3. 현재까지 생성된 계좌 개수 출력 method
+        return f"'생성된 계좌 총 개수:'{Account.total_count}'개''계좌번호:'{self.account_no}"
+    
+    def deposit(self, amount): #Q4. 입금_1원이상 입금 가능
+        if amount <1:
+            print("최소 1원"); return
+        self.balance += amount      #종전 잔액에 입금된 금액을 더해서 현재 잔액에 표시
+        self.deposit_history.append(amount) #입금 기록을 리스트의 마지막 항목에 추가
+        self.deposit_count += 1             #입금 횟수 표시
+        print(f"+ 입금액:{amount:,}원, 계좌잔액: {self.balance:,}원")
+
+        if self.deposit_count % 5 ==0: #Q7 이자가 지급되기 위한 조건
+            self.apply_interests()
+    
+    def withdraw(self, amount): #Q5. 출금_계좌 잔액보다 큰 금액을 출금할 수 없음
+        if amount < 1 or amount > self.balance:
+            print("출금 불가"); return
+        self.balance -= amount
+        self.withdraw_history.append(amount)
+        print(f"- 출금액:{amount:,}원, 계좌잔액: {self.balance:,}원")
+
+    def apply_interests(self): #Q7 이자 지급
+        interests = int(self.balance * 0.01) #이자 지급액 = 잔고기준 1%
+        self.balance += interests
+        self.deposit_history.append(interests)
+        
+        print(f'--- 5회 입금 이자: +{interests:,}원, 계좌잔액:{self.balance:,}원')
+
+
+    def display_info(self):  #Q6. 계좌정보 출력 메소드
+        print(f'은행이름: {self.bank}, 예금주명:{self.depositor},계좌번호:{self.account_no},잔액:{self.balance:,}원')
+    
+    def show_history(self): #Q10. 입출금내역 출력
+        print('입금내역:', [f"{x: ,}원" for x in self.deposit_history])
+        print('출금내역:', [f"{x: ,}원" for x in self.withdraw_history])
+
+
+if __name__ == "__main__":
+    depositor1 = Account("신정아",0)
+    print(depositor1.get_account_num())
+
+    depositor1.deposit(50000)
+    depositor1.deposit(125000)
+    depositor1.deposit(100000)
+    depositor1.deposit(300000)
+    depositor1.deposit(65000)
+    depositor1.withdraw(50000)
+    depositor1.deposit(30000)
+    depositor1.deposit(75000)
+    depositor1.deposit(100000)
+    depositor1.deposit(90000)
+    depositor1.withdraw(100000)
+    depositor1.display_info()
+    depositor1.show_history()
+    
+accounts = [(Account(f"User{i}") for i in range(5),0)]
+for depositor in accounts[:3]:
+    depositor.deposit(1500000)
+
+print("\n100만원 이상:")
+for depositor in accounts:
+    if depositor.balance>=1000000:
+        depositor.display_info()
